@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Borna Café</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="/" class="back-btn">← Back to Home</a>
+    
+    <div class="menu-container">
+        <div class="menu-header">
+            <header class="cafe-header">
+                <img src="logo.png" alt="Borna Cafe Logo" class="cafe-logo">
+                <h1 class="cafe-name">Borna Café</h1>
+            </header>
+            <p>Discover our carefully curated selection</p>
+        </div>
+        
+        <div id="menu-content">
+            <div class="loading" style="text-align: center; padding: 2rem;">
+                <p>Loading menu...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadMenu() {
+            try {
+                const response = await fetch('/api/menu');
+                const menu = await response.json();
+                
+                const menuContent = document.getElementById('menu-content');
+                menuContent.innerHTML = '';
+                
+                if (Object.keys(menu).length === 0) {
+                    menuContent.innerHTML = `
+                        <div class="category">
+                            <p style="text-align: center; color: #7f8c8d; font-style: italic;">
+                                No menu items available at the moment.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                for (const [category, items] of Object.entries(menu)) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category';
+                    
+                    categoryDiv.innerHTML = `
+                        <h2 class="category-title">${category}</h2>
+                        ${items.map(item => `
+                            <div class="menu-item">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-price">${item.price.toLocaleString()}t</span>
+                            </div>
+                        `).join('')}
+                    `;
+                    
+                    menuContent.appendChild(categoryDiv);
+                }
+            } catch (error) {
+                document.getElementById('menu-content').innerHTML = `
+                    <div class="category">
+                        <p style="text-align: center; color: #e74c3c;">
+                            Error loading menu. Please try again later.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load menu when page loads
+        loadMenu();
+    </script>
+</body>
+</html>
